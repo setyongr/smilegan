@@ -1,7 +1,7 @@
 import time
 
 import tensorflow as tf
-from network import unet_generator, discriminator
+from .network import unet_generator, discriminator, resnet_generator
 
 loss_obj = tf.keras.losses.BinaryCrossentropy(from_logits=True)
 
@@ -46,8 +46,17 @@ class SmileGan:
 
         print("Initializing Model")
 
-        self.generator_g = unet_generator(OUTPUT_CHANNELS)
-        self.generator_f = unet_generator(OUTPUT_CHANNELS)
+        if args.generator_model == "unet":
+            print("Using UNet Generator")
+            self.generator_g = unet_generator(OUTPUT_CHANNELS)
+            self.generator_f = unet_generator(OUTPUT_CHANNELS)
+        elif args.generator_model == "resnet":
+            print("Using ResNet Generator")
+            self.generator_g = resnet_generator()
+            self.generator_f = resnet_generator()
+        else:
+            print("Generator Model Not Supported")
+            raise Exception("Generator Model Not Supported")
 
         self.discriminator_x = discriminator()
         self.discriminator_y = discriminator()

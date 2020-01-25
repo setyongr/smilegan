@@ -13,6 +13,7 @@ COPY trainer/input.py ./trainer/input.py
 COPY trainer/model.py ./trainer/model.py
 COPY trainer/network.py ./trainer/network.py
 COPY trainer/task.py ./trainer/task.py
+COPY main.py ./main.py
 
 # Set up the entry point to invoke the trainer.
-ENTRYPOINT ["python", "-u", "trainer/task.py"]
+ENTRYPOINT ["python", "-u", "main.py"]

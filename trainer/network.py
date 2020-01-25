@@ -141,6 +141,61 @@ def unet_generator(output_channels):
     return tf.keras.Model(inputs=inputs, outputs=x)
 
 
+# generator a resnet block
+def resnet_block(n_filters, input_layer):
+    # weight initialization
+    init = tf.random_normal_initializer(0., 0.02)
+
+    # first layer convolutional layer
+    g = tf.keras.layers.Conv2D(n_filters, (3, 3), padding='same', kernel_initializer=init)(input_layer)
+    g = InstanceNormalization()(g)
+    g = tf.keras.layers.ReLU()(g)
+    # second convolutional layer
+    g = tf.keras.layers.Conv2D(n_filters, (3, 3), padding='same', kernel_initializer=init)(g)
+    g = InstanceNormalization()(g)
+    # concatenate merge channel-wise with input layer
+    g = tf.keras.layers.Concatenate()([g, input_layer])
+    return g
+
+
+# define the standalone generator model
+def resnet_generator(n_resnet=9):
+    # weight initialization
+    init = tf.random_normal_initializer(0., 0.02)
+    # image input
+    in_image = tf.keras.layers.Input(shape=[None, None, 3])
+    # c7s1-64
+    g = tf.keras.layers.Conv2D(64, (7, 7), padding='same', kernel_initializer=init)(in_image)
+    g = InstanceNormalization()(g)
+    g = tf.keras.layers.ReLU()(g)
+    # d128
+    g = tf.keras.layers.Conv2D(128, (3, 3), strides=(2, 2), padding='same', kernel_initializer=init)(g)
+    g = InstanceNormalization()(g)
+    g = tf.keras.layers.ReLU()(g)
+    # d256
+    g = tf.keras.layers.Conv2D(256, (3, 3), strides=(2, 2), padding='same', kernel_initializer=init)(g)
+    g = InstanceNormalization()(g)
+    g = tf.keras.layers.ReLU()(g)
+    # R256
+    for _ in range(n_resnet):
+        g = resnet_block(256, g)
+    # u128
+    g = tf.keras.layers.Conv2DTranspose(128, (3, 3), strides=(2, 2), padding='same', kernel_initializer=init)(g)
+    g = InstanceNormalization()(g)
+    g = tf.keras.layers.ReLU()(g)
+    # u64
+    g = tf.keras.layers.Conv2DTranspose(64, (3, 3), strides=(2, 2), padding='same', kernel_initializer=init)(g)
+    g = InstanceNormalization()(g)
+    g = tf.keras.layers.ReLU()(g)
+    # c7s1-3
+    g = tf.keras.layers.Conv2D(3, (7, 7), padding='same', kernel_initializer=init)(g)
+    g = InstanceNormalization()(g)
+    out_image = tf.keras.layers.ReLU()(g)
+    # define model
+    model = tf.keras.Model(in_image, out_image)
+    return model
+
+
 def discriminator():
     """PatchGan discriminator model (https://arxiv.org/abs/1611.07004).
     Returns:

@@ -6,8 +6,8 @@ import sys
 from datetime import datetime
 import tensorflow as tf
 
-from input import get_input
-from model import SmileGan
+from .input import get_input
+from .model import SmileGan
 
 
 def get_args():
@@ -138,7 +138,3 @@ def main():
     time_elapsed = time_end - time_start
     logging.info('Experiment elapsed time: {} seconds'.format(
         time_elapsed.total_seconds()))
-
-
-if __name__ == '__main__':
-    main()
