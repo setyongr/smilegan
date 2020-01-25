@@ -37,6 +37,7 @@ class SmileGan:
         self.CHECKPOINT_PATH = args.job_dir
         self.cycle_lambda = args.cycle_lambda
         self.epochs = args.num_epochs
+        self.lr = args.learning_rate
 
         self.generator_g = unet_generator(OUTPUT_CHANNELS)
         self.generator_f = unet_generator(OUTPUT_CHANNELS)
@@ -44,11 +45,11 @@ class SmileGan:
         self.discriminator_x = discriminator()
         self.discriminator_y = discriminator()
 
-        self.generator_g_optimizer = tf.keras.optimizers.Adam(2e-5, beta_1=0.5)
-        self.generator_f_optimizer = tf.keras.optimizers.Adam(2e-5, beta_1=0.5)
+        self.generator_g_optimizer = tf.keras.optimizers.Adam(self.lr, beta_1=0.5)
+        self.generator_f_optimizer = tf.keras.optimizers.Adam(self.lr, beta_1=0.5)
 
-        self.discriminator_x_optimizer = tf.keras.optimizers.Adam(2e-5, beta_1=0.5)
-        self.discriminator_y_optimizer = tf.keras.optimizers.Adam(2e-5, beta_1=0.5)
+        self.discriminator_x_optimizer = tf.keras.optimizers.Adam(self.lr, beta_1=0.5)
+        self.discriminator_y_optimizer = tf.keras.optimizers.Adam(self.lr, beta_1=0.5)
 
         ckpt = tf.train.Checkpoint(generator_g=self.generator_g,
                                    generator_f=self.generator_f,

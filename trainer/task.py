@@ -23,7 +23,8 @@ def get_args():
         '--train-files',
         help='GCS or local paths to training data.',
         type=str,
-        required=True)
+        required=True,
+        default="gs://setyongr_ai/FEICrop/")
 
     args_parser.add_argument(
         '--batch-size',
@@ -47,7 +48,7 @@ def get_args():
     args_parser.add_argument(
         '--learning-rate',
         help='Learning rate value for the optimizers.',
-        default=0.1,
+        default=0.0002,
         type=float)
 
     args_parser.add_argument(
