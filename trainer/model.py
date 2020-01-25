@@ -1,7 +1,7 @@
 import time
 
 import tensorflow as tf
-from .network import unet_generator, discriminator
+from network import unet_generator, discriminator
 
 loss_obj = tf.keras.losses.BinaryCrossentropy(from_logits=True)
 

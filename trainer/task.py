@@ -6,8 +6,8 @@ import sys
 from datetime import datetime
 import tensorflow as tf
 
-from .input import get_input
-from .model import SmileGan
+from input import get_input
+from model import SmileGan
 
 
 def get_args():
