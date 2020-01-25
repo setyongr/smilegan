@@ -22,7 +22,7 @@ def get_args():
     args_parser.add_argument(
         '--train-files',
         help='GCS or local paths to training data.',
-        nargs='+',
+        type=str,
         required=True)
 
     args_parser.add_argument(

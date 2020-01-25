@@ -51,8 +51,8 @@ def preprocess_image_train(data):
 
 
 def get_input(data_dir):
-    neutral_ds = tf.data.Dataset.list_files(str(data_dir / '*a.jpg'))
-    smile_ds = tf.data.Dataset.list_files(str(data_dir / '*b.jpg'))
+    neutral_ds = tf.data.Dataset.list_files(data_dir + '*a.jpg')
+    smile_ds = tf.data.Dataset.list_files(data_dir + '*b.jpg')
     train_neutral = neutral_ds.map(
         preprocess_image_train, num_parallel_calls=AUTOTUNE).cache().shuffle(
         BUFFER_SIZE).batch(BATCH_SIZE)
