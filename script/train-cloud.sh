@@ -35,8 +35,6 @@ gcloud beta ai-platform jobs submit training ${JOB_NAME} \
     --master-image-uri ${IMAGE_URI} \
     --scale-tier BASIC_GPU \
     -- \
-    --train-files ${TRAIN_FILES} \
-    --eval-files ${EVAL_FILES} \
     --num-epochs=50 \
     --learning-rate=0.001 \
     --job-dir=${JOB_DIR}

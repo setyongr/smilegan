@@ -83,6 +83,10 @@ def get_args():
 
     # Saved model arguments
     args_parser.add_argument(
+        '--checkpoint-file',
+        help='Specific Checkpoint to Load.')
+
+    args_parser.add_argument(
         '--job-dir',
         help='GCS location to write checkpoints and export models.',
         required=True)

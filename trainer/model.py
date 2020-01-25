@@ -76,13 +76,16 @@ class SmileGan:
                                    discriminator_x_optimizer=self.discriminator_x_optimizer,
                                    discriminator_y_optimizer=self.discriminator_y_optimizer)
 
-        self.ckpt_manager = tf.train.CheckpointManager(ckpt, self.CHECKPOINT_PATH, max_to_keep=10)
-
-        print("Loading Checkpoint")
-        # if a checkpoint exists, restore the latest checkpoint.
-        if self.ckpt_manager.latest_checkpoint:
-            ckpt.restore(self.ckpt_manager.latest_checkpoint)
-            print('Latest checkpoint restored!!')
+        if args.checkpoint_file:
+            print("Loading Specific Checkpoint")
+            ckpt.restore(args.checkpoint_file)
+        else:
+            print("Loading Checkpoint")
+            self.ckpt_manager = tf.train.CheckpointManager(ckpt, self.CHECKPOINT_PATH, max_to_keep=10)
+            # if a checkpoint exists, restore the latest checkpoint.
+            if self.ckpt_manager.latest_checkpoint:
+                ckpt.restore(self.ckpt_manager.latest_checkpoint)
+                print('Latest checkpoint restored!!')
 
         print("Model Initialized")
 
