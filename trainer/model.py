@@ -37,7 +37,14 @@ class SmileGan:
         self.CHECKPOINT_PATH = args.job_dir
         self.cycle_lambda = args.cycle_lambda
         self.epochs = args.num_epochs
-        self.lr = args.learning_rate
+
+        self.g_lr = args.g_lr
+        self.g_b1 = args.g_b1
+
+        self.d_lr = args.d_lr
+        self.d_b1 = args.d_b1
+
+        print("Initializing Model")
 
         self.generator_g = unet_generator(OUTPUT_CHANNELS)
         self.generator_f = unet_generator(OUTPUT_CHANNELS)
@@ -45,11 +52,11 @@ class SmileGan:
         self.discriminator_x = discriminator()
         self.discriminator_y = discriminator()
 
-        self.generator_g_optimizer = tf.keras.optimizers.Adam(self.lr, beta_1=0.5)
-        self.generator_f_optimizer = tf.keras.optimizers.Adam(self.lr, beta_1=0.5)
+        self.generator_g_optimizer = tf.keras.optimizers.Adam(self.g_lr, beta_1=self.g_b1)
+        self.generator_f_optimizer = tf.keras.optimizers.Adam(self.g_lr, beta_1=self.g_b1)
 
-        self.discriminator_x_optimizer = tf.keras.optimizers.Adam(self.lr, beta_1=0.5)
-        self.discriminator_y_optimizer = tf.keras.optimizers.Adam(self.lr, beta_1=0.5)
+        self.discriminator_x_optimizer = tf.keras.optimizers.Adam(self.d_lr, beta_1=self.d_b1)
+        self.discriminator_y_optimizer = tf.keras.optimizers.Adam(self.d_lr, beta_1=self.d_b1)
 
         ckpt = tf.train.Checkpoint(generator_g=self.generator_g,
                                    generator_f=self.generator_f,
@@ -60,12 +67,15 @@ class SmileGan:
                                    discriminator_x_optimizer=self.discriminator_x_optimizer,
                                    discriminator_y_optimizer=self.discriminator_y_optimizer)
 
-        self.ckpt_manager = tf.train.CheckpointManager(ckpt, self.CHECKPOINT_PATH, max_to_keep=5)
+        self.ckpt_manager = tf.train.CheckpointManager(ckpt, self.CHECKPOINT_PATH, max_to_keep=10)
 
+        print("Loading Checkpoint")
         # if a checkpoint exists, restore the latest checkpoint.
         if self.ckpt_manager.latest_checkpoint:
             ckpt.restore(self.ckpt_manager.latest_checkpoint)
             print('Latest checkpoint restored!!')
+
+        print("Model Initialized")
 
     @tf.function
     def train_step(self, real_x, real_y):
@@ -137,7 +147,7 @@ class SmileGan:
                     print(n, end=' ')
                 n += 1
 
-            if (epoch + 1) % 5 == 0:
+            if (epoch + 1) % 10 == 0:
                 ckpt_save_path = self.ckpt_manager.save()
                 print('Saving checkpoint for epoch {} at {}'.format(epoch + 1,
                                                                     ckpt_save_path))

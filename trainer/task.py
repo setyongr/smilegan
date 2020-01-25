@@ -23,7 +23,6 @@ def get_args():
         '--train-files',
         help='GCS or local paths to training data.',
         type=str,
-        required=True,
         default="gs://setyongr_ai/FEICrop/")
 
     args_parser.add_argument(
@@ -46,9 +45,27 @@ def get_args():
 
     # Estimator arguments
     args_parser.add_argument(
-        '--learning-rate',
+        '--g-lr',
         help='Learning rate value for the optimizers.',
         default=0.0002,
+        type=float)
+
+    args_parser.add_argument(
+        '--d-lr',
+        help='Learning rate value for the optimizers.',
+        default=0.0002,
+        type=float)
+
+    args_parser.add_argument(
+        '--g-b1',
+        help='Learning rate value for the optimizers.',
+        default=0.05,
+        type=float)
+
+    args_parser.add_argument(
+        '--d-b1',
+        help='Learning rate value for the optimizers.',
+        default=0.05,
         type=float)
 
     args_parser.add_argument(
@@ -56,6 +73,13 @@ def get_args():
         help='Cycle Loss Lambda.',
         default=10,
         type=int)
+
+    args_parser.add_argument(
+        '--generator-model',
+        help="unet/resnet",
+        default="unet",
+        type=str
+    )
 
     # Saved model arguments
     args_parser.add_argument(
