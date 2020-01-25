@@ -35,7 +35,7 @@ class SmileGan:
     def __init__(self, args):
         OUTPUT_CHANNELS = 3
         self.CHECKPOINT_PATH = args.job_dir
-        self.cycle_lambda = args.cycle_lamdba
+        self.cycle_lambda = args.cycle_lambda
         self.epochs = args.num_epochs
 
         self.generator_g = unet_generator(OUTPUT_CHANNELS)
