@@ -42,7 +42,7 @@ class SmileGan:
             self.job_dir += "/"
 
         # Save Args Information
-        with open(self.job_dir + "meta") as file:
+        with open(self.job_dir + "meta.json", "w") as file:
             file.write(json.dumps(vars(args)))
 
         self.CHECKPOINT_PATH = self.job_dir + "checkpoint"
@@ -167,31 +167,27 @@ class SmileGan:
 
     def train(self, train_neutral, train_smile):
         print("Training Started")
-        with self.writer.as_default():
-            for epoch in range(self.epochs):
-                start = time.time()
+        for epoch in range(self.epochs):
+            start = time.time()
+            print('Training for epoch {}'.format(epoch + 1))
 
-                n = 0
-                for image_x, image_y in tf.data.Dataset.zip((train_neutral, train_smile)):
-                    self.train_step(image_x, image_y)
-                    if n % 10 == 0:
-                        print(n, end=' ')
-                    n += 1
+            for image_x, image_y in tf.data.Dataset.zip((train_neutral, train_smile)):
+                self.train_step(image_x, image_y)
 
-                if (epoch + 1) % 10 == 0:
-                    ckpt_save_path = self.ckpt_manager.save()
-                    print('Saving checkpoint for epoch {} at {}'.format(epoch + 1,
-                                                                        ckpt_save_path))
+            if (epoch + 1) % 10 == 0:
+                ckpt_save_path = self.ckpt_manager.save()
+                print('Saving checkpoint for epoch {} at {}'.format(epoch + 1,
+                                                                    ckpt_save_path))
 
-                print('Time taken for epoch {} is {} sec\n'.format(epoch + 1,
-                                                                   time.time() - start))
-
+            print('Time taken for epoch {} is {} sec\n'.format(epoch + 1,
+                                                               time.time() - start))
+            with self.writer.as_default():
                 img_train = tf.expand_dims(process_test(self.sample_train), 0)
                 img_train = self.generator_g(img_train) * 0.5 + 0.5
                 tf.summary.image("Training data", img_train, step=epoch)
+                self.writer.flush()
 
                 img_test = tf.expand_dims(process_test(self.sample_test), 0)
                 img_test = self.generator_g(img_test) * 0.5 + 0.5
                 tf.summary.image("Testing data", img_test, step=epoch)
-
-        self.writer.flush()
+                self.writer.flush()
