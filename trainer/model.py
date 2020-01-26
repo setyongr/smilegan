@@ -28,9 +28,9 @@ def calc_cycle_loss(cycle_labmda, real_image, cycled_image):
     return cycle_labmda * loss1
 
 
-def identity_loss(cycle_labmda, real_image, same_image):
+def identity_loss(cycle_lambda, real_image, same_image):
     loss = tf.reduce_mean(tf.abs(real_image - same_image))
-    return cycle_labmda * 0.5 * loss
+    return cycle_lambda * 0.5 * loss
 
 
 class SmileGan:
@@ -106,6 +106,10 @@ class SmileGan:
             fake_x = self.generator_f(real_y, training=True)
             cycled_y = self.generator_g(fake_x, training=True)
 
+            # same_x and same_y are used for identity loss.
+            same_x = self.generator_f(real_x, training=True)
+            same_y = self.generator_g(real_y, training=True)
+
             disc_real_x = self.discriminator_x(real_x, training=True)
             disc_real_y = self.discriminator_y(real_y, training=True)
 
@@ -121,8 +125,8 @@ class SmileGan:
                                                                                                       cycled_y)
 
             # Total generator loss = adversarial loss + cycle loss
-            total_gen_g_loss = gen_g_loss + total_cycle_loss
-            total_gen_f_loss = gen_f_loss + total_cycle_loss
+            total_gen_g_loss = gen_g_loss + total_cycle_loss + identity_loss(self.cycle_lambda, real_y, same_y)
+            total_gen_f_loss = gen_f_loss + total_cycle_loss + identity_loss(self.cycle_lambda, real_x, same_x)
 
             disc_x_loss = discriminator_loss(disc_real_x, disc_fake_x)
             disc_y_loss = discriminator_loss(disc_real_y, disc_fake_y)
@@ -154,7 +158,7 @@ class SmileGan:
     def train(self, train_neutral, train_smile):
         print("Training Started")
         with self.writer.as_default():
-            for epoch in range(2):
+            for epoch in range(self.epochs):
                 start = time.time()
 
                 n = 0
