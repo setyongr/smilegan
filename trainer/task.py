@@ -94,10 +94,6 @@ def get_args():
         default="gs://setyongr_ai/FEITest/23a.jpg",
         type=str
     )
-    args_parser.add_argument(
-        '--log-dir',
-        help='Tensorboard Log Dir.',
-        required=True)
 
     # Saved model arguments
     args_parser.add_argument(

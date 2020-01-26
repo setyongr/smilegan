@@ -36,7 +36,7 @@ def identity_loss(cycle_labmda, real_image, same_image):
 class SmileGan:
     def __init__(self, args):
         OUTPUT_CHANNELS = 3
-        self.CHECKPOINT_PATH = args.job_dir
+        self.CHECKPOINT_PATH = args.job_dir + "checkpoint"
         self.cycle_lambda = args.cycle_lambda
         self.epochs = args.num_epochs
 
@@ -46,7 +46,7 @@ class SmileGan:
         self.d_lr = args.d_lr
         self.d_b1 = args.d_b1
 
-        self.writer = tf.summary.create_file_writer(args.log_dir)
+        self.writer = tf.summary.create_file_writer(args.job_dir + "log")
 
         self.sample_train = args.sample_train
         self.sample_test = args.sample_test
