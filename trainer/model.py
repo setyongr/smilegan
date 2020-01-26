@@ -2,7 +2,7 @@ import time
 
 import tensorflow as tf
 
-from .input import process_test, denormalize
+from .input import process_test
 from .network import unet_generator, discriminator, resnet_generator
 
 loss_obj = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -153,11 +153,11 @@ class SmileGan:
 
     def train(self, train_neutral, train_smile):
         print("Training Started")
-        for epoch in range(self.epochs):
-            start = time.time()
+        with self.writer.as_default():
+            for epoch in range(2):
+                start = time.time()
 
-            n = 0
-            with self.writer.as_default():
+                n = 0
                 for image_x, image_y in tf.data.Dataset.zip((train_neutral, train_smile)):
                     self.train_step(image_x, image_y)
                     if n % 10 == 0:
@@ -173,11 +173,11 @@ class SmileGan:
                                                                    time.time() - start))
 
                 img_train = tf.expand_dims(process_test(self.sample_train), 0)
-                img_train = denormalize(self.generator_g(img_train))
+                img_train = self.generator_g(img_train) * 0.5 + 0.5
                 tf.summary.image("Training data", img_train, step=epoch)
 
                 img_test = tf.expand_dims(process_test(self.sample_test), 0)
-                img_test = denormalize(self.generator_g(img_test))
+                img_test = self.generator_g(img_test) * 0.5 + 0.5
                 tf.summary.image("Testing data", img_test, step=epoch)
 
-            self.writer.flush()
+        self.writer.flush()
