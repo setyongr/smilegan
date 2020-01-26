@@ -42,7 +42,7 @@ class SmileGan:
             self.job_dir += "/"
 
         # Save Args Information
-        with open(self.job_dir + "meta.json", "w") as file:
+        with tf.io.gfile.GFile(self.job_dir + "meta.json", "w") as file:
             file.write(json.dumps(vars(args)))
 
         self.CHECKPOINT_PATH = self.job_dir + "checkpoint"
