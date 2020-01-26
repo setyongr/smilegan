@@ -1,6 +1,8 @@
 import time
 
 import tensorflow as tf
+
+from .input import process_test, denormalize
 from .network import unet_generator, discriminator, resnet_generator
 
 loss_obj = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -44,6 +46,11 @@ class SmileGan:
         self.d_lr = args.d_lr
         self.d_b1 = args.d_b1
 
+        self.writer = tf.summary.create_file_writer(args.log_dir)
+
+        self.sample_train = args.sample_train
+        self.sample_test = args.sample_test
+
         print("Initializing Model")
 
         if args.generator_model == "unet":
@@ -76,16 +83,12 @@ class SmileGan:
                                    discriminator_x_optimizer=self.discriminator_x_optimizer,
                                    discriminator_y_optimizer=self.discriminator_y_optimizer)
 
-        if args.checkpoint_file:
-            print("Loading Specific Checkpoint")
-            ckpt.restore(args.checkpoint_file)
-        else:
-            print("Loading Checkpoint")
-            self.ckpt_manager = tf.train.CheckpointManager(ckpt, self.CHECKPOINT_PATH, max_to_keep=10)
-            # if a checkpoint exists, restore the latest checkpoint.
-            if self.ckpt_manager.latest_checkpoint:
-                ckpt.restore(self.ckpt_manager.latest_checkpoint)
-                print('Latest checkpoint restored!!')
+        print("Loading Checkpoint")
+        self.ckpt_manager = tf.train.CheckpointManager(ckpt, self.CHECKPOINT_PATH, max_to_keep=2)
+        # if a checkpoint exists, restore the latest checkpoint.
+        if self.ckpt_manager.latest_checkpoint:
+            ckpt.restore(self.ckpt_manager.latest_checkpoint)
+            print('Latest checkpoint restored!!')
 
         print("Model Initialized")
 
@@ -153,16 +156,25 @@ class SmileGan:
             start = time.time()
 
             n = 0
-            for image_x, image_y in tf.data.Dataset.zip((train_neutral, train_smile)):
-                self.train_step(image_x, image_y)
-                if n % 10 == 0:
-                    print(n, end=' ')
-                n += 1
+            with self.writer.as_default():
+                for image_x, image_y in tf.data.Dataset.zip((train_neutral, train_smile)):
+                    self.train_step(image_x, image_y)
+                    if n % 10 == 0:
+                        print(n, end=' ')
+                    n += 1
 
-            if (epoch + 1) % 10 == 0:
-                ckpt_save_path = self.ckpt_manager.save()
-                print('Saving checkpoint for epoch {} at {}'.format(epoch + 1,
-                                                                    ckpt_save_path))
+                if (epoch + 1) % 10 == 0:
+                    ckpt_save_path = self.ckpt_manager.save()
+                    print('Saving checkpoint for epoch {} at {}'.format(epoch + 1,
+                                                                        ckpt_save_path))
 
-            print('Time taken for epoch {} is {} sec\n'.format(epoch + 1,
-                                                               time.time() - start))
+                print('Time taken for epoch {} is {} sec\n'.format(epoch + 1,
+                                                                   time.time() - start))
+
+                img_train = denormalize(self.generator_g(process_test(self.sample_test)))
+                tf.summary.image("Training data", img_train, step=epoch)
+
+                img_test = denormalize(self.generator_g(process_test(self.sample_test)))
+                tf.summary.image("Training data", img_test, step=epoch)
+
+            self.writer.flush()

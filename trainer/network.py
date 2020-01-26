@@ -190,7 +190,7 @@ def resnet_generator(n_resnet=9):
     # c7s1-3
     g = tf.keras.layers.Conv2D(3, (7, 7), padding='same', kernel_initializer=init)(g)
     g = InstanceNormalization()(g)
-    out_image = tf.keras.layers.ReLU()(g)
+    out_image = tf.keras.layers.Activation("tanh")(g)
     # define model
     model = tf.keras.Model(in_image, out_image)
     return model

@@ -81,11 +81,25 @@ def get_args():
         type=str
     )
 
-    # Saved model arguments
     args_parser.add_argument(
-        '--checkpoint-file',
-        help='Specific Checkpoint to Load.')
+        '--sample-train',
+        help="sample train image",
+        default="gs://setyongr_ai/FEICrop/100a.jpg",
+        type=str
+    )
 
+    args_parser.add_argument(
+        '--sample-test',
+        help="sample test image",
+        default="gs://setyongr_ai/FEITest/23a.jpg",
+        type=str
+    )
+    args_parser.add_argument(
+        '--log-dir',
+        help='Tensorboard Log Dir.',
+        required=True)
+
+    # Saved model arguments
     args_parser.add_argument(
         '--job-dir',
         help='GCS location to write checkpoints and export models.',

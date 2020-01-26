@@ -62,3 +62,13 @@ def get_input(data_dir):
 
     return train_neutral, train_smile
 
+
+def denormalize(image):
+    return (image + 1) * 127.5
+
+
+def process_test(data):
+    image = process_img(data)
+    image = tf.image.resize(image, [IMG_WIDTH, IMG_HEIGHT])
+    image = normalize(image)
+    return image
