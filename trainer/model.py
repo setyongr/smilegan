@@ -1,3 +1,4 @@
+import json
 import time
 
 import tensorflow as tf
@@ -36,7 +37,15 @@ def identity_loss(cycle_lambda, real_image, same_image):
 class SmileGan:
     def __init__(self, args):
         OUTPUT_CHANNELS = 3
-        self.CHECKPOINT_PATH = args.job_dir + "checkpoint"
+        self.job_dir = args.job_dir
+        if self.job_dir[-1] != "/":
+            self.job_dir += "/"
+
+        # Save Args Information
+        with open(self.job_dir + "meta") as file:
+            file.write(json.dumps(vars(args)))
+
+        self.CHECKPOINT_PATH = self.job_dir + "checkpoint"
         self.cycle_lambda = args.cycle_lambda
         self.epochs = args.num_epochs
 
@@ -46,7 +55,8 @@ class SmileGan:
         self.d_lr = args.d_lr
         self.d_b1 = args.d_b1
 
-        self.writer = tf.summary.create_file_writer(args.job_dir + "log")
+        # Tensorboard Writer
+        self.writer = tf.summary.create_file_writer(self.job_dir + "log")
 
         self.sample_train = args.sample_train
         self.sample_test = args.sample_test
