@@ -152,6 +152,7 @@ class SmileGan:
                                                            self.discriminator_y.trainable_variables))
 
     def train(self, train_neutral, train_smile):
+        print("Training Started")
         for epoch in range(self.epochs):
             start = time.time()
 
@@ -171,10 +172,12 @@ class SmileGan:
                 print('Time taken for epoch {} is {} sec\n'.format(epoch + 1,
                                                                    time.time() - start))
 
-                img_train = denormalize(self.generator_g(process_test(self.sample_test)))
+                img_train = tf.expand_dims(process_test(self.sample_train), 0)
+                img_train = denormalize(self.generator_g(img_train))
                 tf.summary.image("Training data", img_train, step=epoch)
 
-                img_test = denormalize(self.generator_g(process_test(self.sample_test)))
-                tf.summary.image("Training data", img_test, step=epoch)
+                img_test = tf.expand_dims(process_test(self.sample_test), 0)
+                img_test = denormalize(self.generator_g(img_test))
+                tf.summary.image("Testing data", img_test, step=epoch)
 
             self.writer.flush()
