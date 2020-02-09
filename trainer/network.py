@@ -93,7 +93,7 @@ def unet_generator(output_channels):
 
     down_stack = [
         # downsample(64, 4, apply_norm=False),  # (bs, 128, 128, 64)
-        downsample(128, 4, apply_norm=True),  # (bs, 64, 64, 128)
+        downsample(128, 4, apply_norm=False),  # (bs, 64, 64, 128)
         downsample(256, 4),  # (bs, 32, 32, 256)
         downsample(512, 4),  # (bs, 16, 16, 512)
         downsample(512, 4),  # (bs, 8, 8, 512)
