@@ -4,8 +4,8 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 BUFFER_SIZE = 1000
 BATCH_SIZE = 1
-IMG_WIDTH = 256
-IMG_HEIGHT = 256
+IMG_WIDTH = 128
+IMG_HEIGHT = 128
 
 
 def process_img(file_path):
@@ -30,12 +30,12 @@ def normalize(image):
 
 
 def random_jitter(image):
-    # resizing to 286 x 286 x 3
-    image = tf.image.resize(image, [286, 286],
-                            method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-
-    # randomly cropping to 256 x 256 x 3
-    image = random_crop(image)
+    # # resizing to 286 x 286 x 3
+    # image = tf.image.resize(image, [286, 286],
+    #                         method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    #
+    # # randomly cropping to 256 x 256 x 3
+    # image = random_crop(image)
 
     # random mirroring
     image = tf.image.random_flip_left_right(image)

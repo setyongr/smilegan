@@ -92,8 +92,8 @@ def unet_generator(output_channels):
     """
 
     down_stack = [
-        downsample(64, 4, apply_norm=False),  # (bs, 128, 128, 64)
-        downsample(128, 4),  # (bs, 64, 64, 128)
+        # downsample(64, 4, apply_norm=False),  # (bs, 128, 128, 64)
+        downsample(128, 4, apply_norm=True),  # (bs, 64, 64, 128)
         downsample(256, 4),  # (bs, 32, 32, 256)
         downsample(512, 4),  # (bs, 16, 16, 512)
         downsample(512, 4),  # (bs, 8, 8, 512)
@@ -109,7 +109,7 @@ def unet_generator(output_channels):
         upsample(512, 4),  # (bs, 16, 16, 1024)
         upsample(256, 4),  # (bs, 32, 32, 512)
         upsample(128, 4),  # (bs, 64, 64, 256)
-        upsample(64, 4),  # (bs, 128, 128, 128)
+        # upsample(64, 4),  # (bs, 128, 128, 128)
     ]
 
     initializer = tf.random_normal_initializer(0., 0.02)
@@ -207,8 +207,8 @@ def discriminator():
     inp = tf.keras.layers.Input(shape=[None, None, 3], name='input_image')
     x = inp
 
-    down1 = downsample(64, 4, False)(x)  # (bs, 128, 128, 64)
-    down2 = downsample(128, 4)(down1)  # (bs, 64, 64, 128)
+    # down1 = downsample(64, 4, False)(x)  # (bs, 128, 128, 64)
+    down2 = downsample(128, 4)(x)  # (bs, 64, 64, 128)
     down3 = downsample(256, 4)(down2)  # (bs, 32, 32, 256)
 
     zero_pad1 = tf.keras.layers.ZeroPadding2D()(down3)  # (bs, 34, 34, 256)
