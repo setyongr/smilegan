@@ -8,6 +8,7 @@ RUN pip install google-cloud-storage
 RUN pip install scikit-image
 
 # Copies the trainer code to the docker image.
+COPY trainer/evaluate.py ./trainer/evaluate.py
 COPY trainer/input.py ./trainer/input.py
 COPY trainer/model.py ./trainer/model.py
 COPY trainer/network.py ./trainer/network.py
