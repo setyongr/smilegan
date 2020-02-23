@@ -79,11 +79,17 @@ class SmileGan:
         self.discriminator_x = discriminator()
         self.discriminator_y = discriminator()
 
-        self.generator_g_optimizer = tf.keras.optimizers.Adam(self.g_lr, beta_1=self.g_b1)
-        self.generator_f_optimizer = tf.keras.optimizers.Adam(self.g_lr, beta_1=self.g_b1)
+        learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
+            self.g_lr,
+            40000,
+            0.0000001,
+            power=0.5)
 
-        self.discriminator_x_optimizer = tf.keras.optimizers.Adam(self.d_lr, beta_1=self.d_b1)
-        self.discriminator_y_optimizer = tf.keras.optimizers.Adam(self.d_lr, beta_1=self.d_b1)
+        self.generator_g_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn, beta_1=self.g_b1)
+        self.generator_f_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn, beta_1=self.g_b1)
+
+        self.discriminator_x_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn, beta_1=self.d_b1)
+        self.discriminator_y_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn, beta_1=self.d_b1)
 
         ckpt = tf.train.Checkpoint(generator_g=self.generator_g,
                                    generator_f=self.generator_f,
@@ -197,4 +203,7 @@ class SmileGan:
                 self.writer.flush()
 
                 tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255))
+                self.writer.flush()
+
+                tf.summary.scalar("Learning Rate", self.generator_g_optimizer._hyper["learning_rate"])
                 self.writer.flush()
