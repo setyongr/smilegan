@@ -4,8 +4,11 @@ import os
 import sys
 
 from datetime import datetime
+from math import floor
+
 import tensorflow as tf
 
+from .evaluate import Evaluator
 from .input import get_input
 from .model import SmileGan
 
@@ -86,6 +89,19 @@ def get_args():
         type=str
     )
 
+    args_parser.add_argument(
+        '--data-count',
+        help="Dataset count",
+        default=200,
+        type=int
+    )
+
+    args_parser.add_argument(
+        '--train-size',
+        help="Train size",
+        default=0.8,
+        type=int
+    )
     # Saved model arguments
     args_parser.add_argument(
         '--job-dir',
@@ -103,9 +119,15 @@ def main():
     time_start = datetime.utcnow()
     print('Experiment started...')
 
-    train_neutral, train_smile = get_input(args.train_files)
-    gan = SmileGan(args)
-    gan.train(train_neutral, train_smile)
+    train_size = floor(args.data_count * args.train_size)
+    train, test = get_input(args.train_files, train_size)
+
+    evaluator = Evaluator()
+    evaluator.calc_stats(train[1])
+
+    gan = SmileGan(args, evaluator)
+    gan.train(train[0], train[1])
+
 
     time_end = datetime.utcnow()
     print('Experiment finished.')

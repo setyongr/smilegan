@@ -43,29 +43,27 @@ def random_jitter(image):
     return image
 
 
-def preprocess_image_train(data):
-    image = process_img(data)
+def preprocess_image_train(image):
     image = random_jitter(image)
     image = normalize(image)
     return image
 
+def get_input(data_dir, train_size):
+    neutral_ds = tf.data.Dataset.list_files(data_dir + '*a.jpg').map(
+        process_img, num_parallel_calls=AUTOTUNE)
+    smile_ds = tf.data.Dataset.list_files(data_dir + '*b.jpg').map(
+        process_img, num_parallel_calls=AUTOTUNE)
 
-def get_input(data_dir):
-    neutral_ds = tf.data.Dataset.list_files(data_dir + '*a.jpg')
-    smile_ds = tf.data.Dataset.list_files(data_dir + '*b.jpg')
-    train_neutral = neutral_ds.map(
+    return (neutral_ds.take(train_size), smile_ds.take(train_size)), (neutral_ds.skip(train_size), smile_ds.skip(train_size))
+
+def preprocess_input(gen):
+    return gen.map(
         preprocess_image_train, num_parallel_calls=AUTOTUNE).cache().shuffle(
-        BUFFER_SIZE).batch(BATCH_SIZE)
-    train_smile = smile_ds.map(
-        preprocess_image_train, num_parallel_calls=AUTOTUNE).cache().shuffle(
-        BUFFER_SIZE).batch(BATCH_SIZE)
-
-    return train_neutral, train_smile
-
+        BUFFER_SIZE
+    ).batch(1)
 
 def denormalize(image):
     return (image + 1) * 127.5
-
 
 def process_test(data):
     image = process_img(data)

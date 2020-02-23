@@ -5,6 +5,7 @@ WORKDIR /root
 
 # Installs pandas, and google-cloud-storage.
 RUN pip install google-cloud-storage
+RUN pip install scikit-image
 
 # Copies the trainer code to the docker image.
 COPY trainer/input.py ./trainer/input.py

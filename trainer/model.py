@@ -3,7 +3,7 @@ import time
 
 import tensorflow as tf
 
-from .input import process_test
+from .input import process_test, preprocess_input
 from .network import unet_generator, discriminator, resnet_generator
 
 loss_obj = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -35,7 +35,8 @@ def identity_loss(cycle_lambda, real_image, same_image):
 
 
 class SmileGan:
-    def __init__(self, args):
+    def __init__(self, args, evaluator):
+        self.evaluator = evaluator
         OUTPUT_CHANNELS = 3
         self.job_dir = args.job_dir
         if self.job_dir[-1] != "/":
@@ -167,6 +168,9 @@ class SmileGan:
 
     def train(self, train_neutral, train_smile):
         print("Training Started")
+        train_neutral = preprocess_input(train_neutral)
+        train_smile = preprocess_input(train_smile)
+
         for epoch in range(self.epochs):
             start = time.time()
             print('Training for epoch {}'.format(epoch + 1))
@@ -190,4 +194,7 @@ class SmileGan:
                 img_test = tf.expand_dims(process_test(self.sample_test), 0)
                 img_test = self.generator_g(img_test) * 0.5 + 0.5
                 tf.summary.image("Testing data", img_test, step=epoch)
+                self.writer.flush()
+
+                tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255))
                 self.writer.flush()
