@@ -9,25 +9,28 @@ from tensorflow.keras.applications.inception_v3 import preprocess_input
 from trainer.input import AUTOTUNE
 
 
-def scale_images(images, new_shape):
+def scale_images(images):
     images_list = list()
     for image in images:
         # resize with nearest neighbor interpolation
-        new_image = resize(image, new_shape, 0)
+        new_image = tf.image.resize(image, [299, 299],
+                                    method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
         # store
         images_list.append(new_image)
     return asarray(images_list)
 
 
+@tf.function
 def preprocess_image(image):
     image = tf.cast(image, tf.float32)
-    image = resize(image, (299, 299, 3), 0)
+    image = tf.image.resize(image, [299, 299],
+                            method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
     return image
 
 
 def preprocess_evaluator(image_gen):
-    image_gen.map(preprocess_image, num_parallel_calls=AUTOTUNE).batch(5).map(preprocess_input,
-                                                                              num_parallel_calls=AUTOTUNE)
+    return image_gen.map(preprocess_image, num_parallel_calls=AUTOTUNE).batch(5).map(preprocess_input,
+                                                                                     num_parallel_calls=AUTOTUNE)
 
 
 class Evaluator:
@@ -58,8 +61,8 @@ class Evaluator:
         self.muReal, self.sigmaReal = self.actReal.mean(axis=0), cov(self.actReal, rowvar=False)
 
     def evaluate(self, images):
-        images = images.astype('float32')
-        images = scale_images(images, (299, 299, 3))
+        images = tf.cast(images, tf.float32)
+        images = scale_images(images)
         images = preprocess_input(images)
 
         # Preprocess
