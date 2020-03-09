@@ -66,6 +66,12 @@ def preprocess_input(gen):
     ).batch(1)
 
 
+def preprocess_test(image):
+    image = tf.image.resize(image, [IMG_WIDTH, IMG_HEIGHT])
+    image = normalize(image)
+    return image
+
+
 def denormalize(image):
     return (image + 1) * 127.5
 
