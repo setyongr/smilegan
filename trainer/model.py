@@ -207,13 +207,13 @@ class SmileGan:
 
                 tf.summary.scalar("Learning Rate", self.generator_g_optimizer._decayed_lr(tf.float32), step=epoch)
                 self.writer.flush()
-            #
-            # if (epoch + 1) % 10 == 0:
-            #     self.evaluate(test_neutral)
 
-    def evaluate(self, images):
-        img_test = images.map(preprocess_test, num_parallel_calls=AUTOTUNE)
-        img_test = self.generator_g(img_test) * 0.5 + 0.5
+            if (epoch + 1) % 10 == 0:
+                self.evaluate(test_neutral, epoch)
+
+    def evaluate(self, images, step):
+        img_test = images.map(preprocess_test, num_parallel_calls=AUTOTUNE).batch(5)
+        img_test = self.generator_g.predict(img_test) * 0.5 + 0.5
         with self.writer.as_default():
-            tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=0)
+            tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=step)
             self.writer.flush()
