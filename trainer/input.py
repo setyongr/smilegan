@@ -48,13 +48,16 @@ def preprocess_image_train(image):
     image = normalize(image)
     return image
 
+
 def get_input(data_dir, train_size):
     neutral_ds = tf.data.Dataset.list_files(data_dir + '*a.jpg').map(
         process_img, num_parallel_calls=AUTOTUNE)
     smile_ds = tf.data.Dataset.list_files(data_dir + '*b.jpg').map(
         process_img, num_parallel_calls=AUTOTUNE)
 
-    return (neutral_ds.take(train_size), smile_ds.take(train_size)), (neutral_ds.skip(train_size), smile_ds.skip(train_size))
+    return (neutral_ds.take(train_size), smile_ds.take(train_size)), \
+           (neutral_ds.skip(train_size), smile_ds.skip(train_size))
+
 
 def preprocess_input(gen):
     return gen.map(
@@ -62,8 +65,10 @@ def preprocess_input(gen):
         BUFFER_SIZE
     ).batch(1)
 
+
 def denormalize(image):
     return (image + 1) * 127.5
+
 
 def process_test(data):
     image = process_img(data)

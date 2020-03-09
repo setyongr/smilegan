@@ -35,7 +35,7 @@ def identity_loss(cycle_lambda, real_image, same_image):
 
 
 class SmileGan:
-    def __init__(self, args, evaluator):
+    def __init__(self, args, evaluator, train_size):
         self.evaluator = evaluator
         OUTPUT_CHANNELS = 3
         self.job_dir = args.job_dir
@@ -81,7 +81,7 @@ class SmileGan:
 
         learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
             self.g_lr,
-            40000,
+            train_size * args.num_epochs,
             0.0000001,
             power=0.5)
 
@@ -172,7 +172,7 @@ class SmileGan:
         self.discriminator_y_optimizer.apply_gradients(zip(discriminator_y_gradients,
                                                            self.discriminator_y.trainable_variables))
 
-    def train(self, train_neutral, train_smile):
+    def train(self, train_neutral, train_smile, test_neutral):
         print("Training Started")
         train_neutral = preprocess_input(train_neutral)
         train_smile = preprocess_input(train_smile)
@@ -201,9 +201,19 @@ class SmileGan:
                 img_test = self.generator_g(img_test) * 0.5 + 0.5
                 tf.summary.image("Testing data", img_test, step=epoch)
                 self.writer.flush()
-
-                tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=epoch)
-                self.writer.flush()
+                #
+                # tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=epoch)
+                # self.writer.flush()
 
                 tf.summary.scalar("Learning Rate", self.generator_g_optimizer._decayed_lr(tf.float32), step=epoch)
                 self.writer.flush()
+
+            if (epoch + 1) % 10 == 0:
+                self.evaluate(test_neutral)
+
+    def evaluate(self, images):
+        img_test = process_test(images)
+        img_test = self.generator_g(img_test) * 0.5 + 0.5
+        with self.writer.as_default():
+            tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=0)
+            self.writer.flush()

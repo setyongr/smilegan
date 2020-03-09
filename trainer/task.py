@@ -92,7 +92,7 @@ def get_args():
     args_parser.add_argument(
         '--data-count',
         help="Dataset count",
-        default=200,
+        default=167,
         type=int
     )
 
@@ -125,9 +125,8 @@ def main():
     evaluator = Evaluator()
     evaluator.calc_stats(train[1])
 
-    gan = SmileGan(args, evaluator)
-    gan.train(train[0], train[1])
-
+    gan = SmileGan(args, evaluator, train_size)
+    gan.train(train[0], train[1], test[0])
 
     time_end = datetime.utcnow()
     print('Experiment finished.')
