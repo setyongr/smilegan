@@ -201,15 +201,15 @@ class SmileGan:
                 img_test = self.generator_g(img_test) * 0.5 + 0.5
                 tf.summary.image("Testing data", img_test, step=epoch)
                 self.writer.flush()
-                #
-                # tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=epoch)
-                # self.writer.flush()
+
+                tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=epoch)
+                self.writer.flush()
 
                 tf.summary.scalar("Learning Rate", self.generator_g_optimizer._decayed_lr(tf.float32), step=epoch)
                 self.writer.flush()
-
-            if (epoch + 1) % 10 == 0:
-                self.evaluate(test_neutral)
+            #
+            # if (epoch + 1) % 10 == 0:
+            #     self.evaluate(test_neutral)
 
     def evaluate(self, images):
         img_test = images.map(preprocess_test, num_parallel_calls=AUTOTUNE)
