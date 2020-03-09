@@ -57,7 +57,7 @@ class Evaluator:
         return fid
 
     def calc_stats(self, train_gen):
-        self.actReal = self.model.predict_generator(preprocess_evaluator(train_gen))
+        self.actReal = self.model.predict(preprocess_evaluator(train_gen))
         self.muReal, self.sigmaReal = self.actReal.mean(axis=0), cov(self.actReal, rowvar=False)
 
     def evaluate(self, images):

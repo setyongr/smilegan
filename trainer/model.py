@@ -3,7 +3,7 @@ import time
 
 import tensorflow as tf
 
-from .input import process_test, preprocess_input
+from .input import process_test, preprocess_input, AUTOTUNE
 from .network import unet_generator, discriminator, resnet_generator
 
 loss_obj = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -212,7 +212,7 @@ class SmileGan:
                 self.evaluate(test_neutral)
 
     def evaluate(self, images):
-        img_test = process_test(images)
+        img_test = images.map(process_test, num_parallel_calls=AUTOTUNE)
         img_test = self.generator_g(img_test) * 0.5 + 0.5
         with self.writer.as_default():
             tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=0)
