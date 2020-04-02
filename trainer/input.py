@@ -49,14 +49,18 @@ def preprocess_image_train(image):
     return image
 
 
-def get_input(data_dir, train_size):
+def get_input(data_dir, test_dir):
     neutral_ds = tf.data.Dataset.list_files(data_dir + '*a.jpg').map(
         process_img, num_parallel_calls=AUTOTUNE)
     smile_ds = tf.data.Dataset.list_files(data_dir + '*b.jpg').map(
         process_img, num_parallel_calls=AUTOTUNE)
 
-    return (neutral_ds.take(train_size), smile_ds.take(train_size)), \
-           (neutral_ds.skip(train_size), smile_ds.skip(train_size))
+    neutral_test_ds = tf.data.Dataset.list_files(test_dir + '*a.jpg').map(
+        process_img, num_parallel_calls=AUTOTUNE)
+    smile_test_ds = tf.data.Dataset.list_files(test_dir + '*b.jpg').map(
+        process_img, num_parallel_calls=AUTOTUNE)
+
+    return (neutral_ds, smile_ds), (neutral_test_ds, smile_test_ds)
 
 
 def preprocess_input(gen):

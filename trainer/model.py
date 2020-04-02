@@ -35,7 +35,7 @@ def identity_loss(cycle_lambda, real_image, same_image):
 
 
 class SmileGan:
-    def __init__(self, args, evaluator, train_size):
+    def __init__(self, args, evaluator):
         self.evaluator = evaluator
         OUTPUT_CHANNELS = 3
         self.job_dir = args.job_dir
@@ -79,17 +79,17 @@ class SmileGan:
         self.discriminator_x = discriminator()
         self.discriminator_y = discriminator()
 
-        learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
-            self.g_lr,
-            train_size * args.num_epochs,
-            0.0000001,
-            power=0.5)
+        # learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
+        #     self.g_lr,
+        #     train_size * args.num_epochs,
+        #     0.0000001,
+        #     power=0.5)
 
-        self.generator_g_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn, beta_1=self.g_b1)
-        self.generator_f_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn, beta_1=self.g_b1)
+        self.generator_g_optimizer = tf.keras.optimizers.Adam(learning_rate=self.g_lr, beta_1=self.g_b1)
+        self.generator_f_optimizer = tf.keras.optimizers.Adam(learning_rate=self.g_lr, beta_1=self.g_b1)
 
-        self.discriminator_x_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn, beta_1=self.d_b1)
-        self.discriminator_y_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn, beta_1=self.d_b1)
+        self.discriminator_x_optimizer = tf.keras.optimizers.Adam(learning_rate=self.d_lr, beta_1=self.d_b1)
+        self.discriminator_y_optimizer = tf.keras.optimizers.Adam(learning_rate=self.d_lr, beta_1=self.d_b1)
 
         ckpt = tf.train.Checkpoint(generator_g=self.generator_g,
                                    generator_f=self.generator_f,

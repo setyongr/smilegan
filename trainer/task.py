@@ -29,6 +29,12 @@ def get_args():
         default="gs://setyongr_ai/FEICrop/")
 
     args_parser.add_argument(
+        '--test-files',
+        help='GCS or local paths to training data.',
+        type=str,
+        default="gs://setyongr_ai/FEICrop/")
+
+    args_parser.add_argument(
         '--num-epochs',
         help="""
         Maximum number of training data epochs on which to train.
@@ -88,20 +94,6 @@ def get_args():
         default="gs://setyongr_ai/FEITest/23a.jpg",
         type=str
     )
-
-    args_parser.add_argument(
-        '--data-count',
-        help="Dataset count",
-        default=167,
-        type=int
-    )
-
-    args_parser.add_argument(
-        '--train-size',
-        help="Train size",
-        default=0.8,
-        type=int
-    )
     # Saved model arguments
     args_parser.add_argument(
         '--job-dir',
@@ -119,13 +111,12 @@ def main():
     time_start = datetime.utcnow()
     print('Experiment started...')
 
-    train_size = floor(args.data_count * args.train_size)
-    train, test = get_input(args.train_files, train_size)
+    train, test = get_input(args.train_files, args.test_files)
 
     evaluator = Evaluator()
     evaluator.calc_stats(train[1])
 
-    gan = SmileGan(args, evaluator, train_size)
+    gan = SmileGan(args, evaluator)
     gan.train(train[0], train[1], test[0])
 
     time_end = datetime.utcnow()
