@@ -31,7 +31,7 @@ def calc_cycle_loss(cycle_labmda, real_image, cycled_image):
 
 def identity_loss(cycle_lambda, real_image, same_image):
     loss = tf.reduce_mean(tf.abs(real_image - same_image))
-    return cycle_lambda * 0.5 * loss
+    return cycle_lambda * loss
 
 
 class SmileGan:

@@ -25,14 +25,12 @@ def get_args():
     args_parser.add_argument(
         '--train-files',
         help='GCS or local paths to training data.',
-        type=str,
-        default="gs://setyongr_ai/FEICrop/")
+        type=str)
 
     args_parser.add_argument(
         '--test-files',
-        help='GCS or local paths to training data.',
-        type=str,
-        default="gs://setyongr_ai/FEICrop/")
+        help='GCS or local paths to testing data.',
+        type=str)
 
     args_parser.add_argument(
         '--num-epochs',
@@ -83,14 +81,13 @@ def get_args():
 
     args_parser.add_argument(
         '--sample-train',
-        help="sample train image",
-        default="gs://setyongr_ai/FEICrop/100a.jpg",
+        help="sample train image to use in tensorboard",
         type=str
     )
 
     args_parser.add_argument(
         '--sample-test',
-        help="sample test image",
+        help="sample test image to use in tensorboard",
         default="gs://setyongr_ai/FEITest/23a.jpg",
         type=str
     )
