@@ -110,7 +110,7 @@ def main():
     train, test = get_input(args.train_files, args.test_files)
 
     fid_calculator = FIDCalculator()
-    fid_calculator.calc_stats(train[1])
+    fid_calculator.calc_stats(test[1])
 
     gan = SmileGan(args, fid_calculator)
     gan.train(train[0], train[1], test[0], calculate_fid=args.calculate_fid)
