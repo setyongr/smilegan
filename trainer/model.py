@@ -35,8 +35,8 @@ def identity_loss(cycle_lambda, real_image, same_image):
 
 
 class SmileGan:
-    def __init__(self, args, evaluator):
-        self.evaluator = evaluator
+    def __init__(self, args, fid_calculator=None):
+        self.fid_calculator = fid_calculator
         OUTPUT_CHANNELS = 3
         self.job_dir = args.job_dir
         if self.job_dir[-1] != "/":
@@ -172,7 +172,7 @@ class SmileGan:
         self.discriminator_y_optimizer.apply_gradients(zip(discriminator_y_gradients,
                                                            self.discriminator_y.trainable_variables))
 
-    def train(self, train_neutral, train_smile, test_neutral):
+    def train(self, train_neutral, train_smile, test_neutral=None, calculate_fid=False):
         print("Training Started")
         train_neutral = preprocess_input(train_neutral)
         train_smile = preprocess_input(train_smile)
@@ -193,27 +193,28 @@ class SmileGan:
                                                                time.time() - start))
             with self.writer.as_default():
                 img_train = tf.expand_dims(process_test(self.sample_train), 0)
-                img_train = self.generator_g(img_train) * 0.5 + 0.5
+                img_train = self.generator_g(img_train) * 0.5 + 0.5 # Convert to 0 - 1 range
                 tf.summary.image("Training data", img_train, step=epoch)
                 self.writer.flush()
 
                 img_test = tf.expand_dims(process_test(self.sample_test), 0)
-                img_test = self.generator_g(img_test) * 0.5 + 0.5
+                img_test = self.generator_g(img_test) * 0.5 + 0.5  # Convert to 0 - 1 range
                 tf.summary.image("Testing data", img_test, step=epoch)
                 self.writer.flush()
 
-                tf.summary.scalar("FID Single", self.evaluator.evaluate(img_test * 255), step=epoch)
-                self.writer.flush()
+                if calculate_fid:
+                    tf.summary.scalar("FID Single", self.fid_calculator.calculate(img_test * 255), step=epoch)
+                    self.writer.flush()
 
                 tf.summary.scalar("Learning Rate", self.generator_g_optimizer._decayed_lr(tf.float32), step=epoch)
                 self.writer.flush()
 
-            if (epoch + 1) % 5 == 0:
-                self.evaluate(test_neutral, epoch)
+            if calculate_fid and ((epoch + 1) % 5 == 0):
+                self.calculate_fid(test_neutral, epoch)
 
-    def evaluate(self, images, step):
+    def calculate_fid(self, images, step):
         img_test = images.map(preprocess_test, num_parallel_calls=AUTOTUNE).batch(5)
         img_test = self.generator_g.predict(img_test) * 0.5 + 0.5
         with self.writer.as_default():
-            tf.summary.scalar("FID", self.evaluator.evaluate(img_test * 255), step=step)
+            tf.summary.scalar("FID", self.fid_calculator.calculate(img_test * 255), step=step)
             self.writer.flush()

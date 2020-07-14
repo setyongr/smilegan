@@ -1,14 +1,7 @@
 import argparse
-import logging
-import os
-import sys
-
 from datetime import datetime
-from math import floor
 
-import tensorflow as tf
-
-from .evaluate import Evaluator
+from .fid_calculator import FIDCalculator
 from .input import get_input
 from .model import SmileGan
 
@@ -88,7 +81,13 @@ def get_args():
     args_parser.add_argument(
         '--sample-test',
         help="sample test image to use in tensorboard",
-        default="gs://setyongr_ai/FEITest/23a.jpg",
+        type=str
+    )
+
+    args_parser.add_argument(
+        '--calculate-fid',
+        help="Should calculate FID",
+        default=False,
         type=str
     )
     # Saved model arguments
@@ -110,11 +109,11 @@ def main():
 
     train, test = get_input(args.train_files, args.test_files)
 
-    evaluator = Evaluator()
-    evaluator.calc_stats(train[1])
+    fid_calculator = FIDCalculator()
+    fid_calculator.calc_stats(train[1])
 
-    gan = SmileGan(args, evaluator)
-    gan.train(train[0], train[1], test[0])
+    gan = SmileGan(args, fid_calculator)
+    gan.train(train[0], train[1], test[0], calculate_fid=args.calculate_fid)
 
     time_end = datetime.utcnow()
     print('Experiment finished.')
