@@ -88,7 +88,7 @@ def get_args():
         '--calculate-fid',
         help="Should calculate FID",
         default=False,
-        type=str
+        type=bool
     )
     # Saved model arguments
     args_parser.add_argument(

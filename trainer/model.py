@@ -203,14 +203,18 @@ class SmileGan:
                 self.writer.flush()
 
                 if calculate_fid:
+                    print("Calculating Single FID")
                     tf.summary.scalar("FID Single", self.fid_calculator.calculate(img_test * 255), step=epoch)
                     self.writer.flush()
+                    print("End Calculating Single FID")
 
-                tf.summary.scalar("Learning Rate", self.generator_g_optimizer._decayed_lr(tf.float32), step=epoch)
+                # tf.summary.scalar("Learning Rate", self.generator_g_optimizer._decayed_lr(tf.float32), step=epoch)
                 self.writer.flush()
 
             if calculate_fid and ((epoch + 1) % 5 == 0):
+                print("Calculating FID")
                 self.calculate_fid(test_neutral, epoch)
+                print("End Calculating FID")
 
     def calculate_fid(self, images, step):
         img_test = images.map(preprocess_test, num_parallel_calls=AUTOTUNE).batch(5)
