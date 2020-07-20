@@ -6,7 +6,7 @@ import tensorflow as tf
 
 
 class Evaluator:
-    def __init__(self, job_dir, generator_model="unet", test_data_dir=None):
+    def __init__(self, job_dir, generator_model="unet", stats_data_gen=None):
         args = argparse.Namespace()
         args.job_dir = job_dir
         args.generator_model = generator_model
@@ -21,9 +21,9 @@ class Evaluator:
 
         self.model = SmileGan(args)
 
-        if test_data_dir:
+        if stats_data_gen:
             self.fid_calculator = FIDCalculator()
-            self.fid_calculator.calc_stats(get_test_input(test_data_dir)[1])
+            self.fid_calculator.calc_stats(stats_data_gen)
 
     def get_smile(self, image_path):
         img_test = tf.expand_dims(process_test(image_path), 0)
