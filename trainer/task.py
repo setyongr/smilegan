@@ -90,6 +90,13 @@ def get_args():
         default=False,
         type=bool
     )
+
+    args_parser.add_argument(
+        '--calculate-fid-stats-from',
+        help="Should calculate FID",
+        default="train",
+        type=str
+    )
     # Saved model arguments
     args_parser.add_argument(
         '--job-dir',
@@ -110,7 +117,13 @@ def main():
     train, test = get_input(args.train_files, args.test_files)
 
     fid_calculator = FIDCalculator()
-    fid_calculator.calc_stats(test[1])
+    if args.calculate_fid:
+        if args.calculate_fid_stats_from == "train":
+            fid_data_gen = train[1]
+        else:
+            fid_data_gen = test[1]
+
+        fid_calculator.calc_stats(fid_data_gen)
 
     gan = SmileGan(args, fid_calculator)
     gan.train(train[0], train[1], test[0], calculate_fid=args.calculate_fid)
